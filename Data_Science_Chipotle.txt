@@ -1,0 +1,64 @@
+###Start by importing chipotle order tsv file with pandas
+
+import pandas as pd
+col_names = ['order_id','quantity','item_name','choice_description','item_price']
+chipotle = pd.read_csv('/home/evan/Downloads/Data_Science/week-1/data/orders.tsv', header = 1, sep = '\t', names = col_names)
+
+###Find the average amount of an order
+
+totalOrders = chipotle['order_id'].count()
+
+orderDict = {}
+for line in chipotle.values:
+    line0 = line[0] #order_id
+    if line0 not in orderDict.keys():
+        orderDict[line0] = line[1]*float(line[4].lstrip('$'))
+    else:
+        orderDict[line0] += line[1]*float(line[4].lstrip('$'))
+
+sum(orderDict.values())/totalOrders #Average cost per order is $8.49
+
+###Find the total number of different drinks that were sold that day
+
+import numpy as np
+chipotle.values
+drinksArr = []
+foodWords = ['Burrito','Chips','Bowl','Salsa','Salad','Tacos']
+for line in chipotle.values:
+    containVar = False
+    for word in foodWords:
+        if (word in line[2]):
+            containVar = True
+        else:
+            pass
+    if containVar == False:
+        drinksArr.append(line[2])
+            
+drinkNum = set(drinksArr)
+print (set(drinkNum))
+len(drinkNum) #6 different drinks
+
+###Find the average number of toppings per burrito
+
+toppingsNumList = []
+for line in chipotle.values:
+    itemNum = 0
+    if 'Burrito' in line[2]:
+        line = line[3].split(',')
+        lenline = len(line)
+        toppingsNumList.append(lenline)
+np.average(toppingsNumList) # the average is 5.395 toppings per burrito, including salsas.
+
+###Find the percentage of chip sales by type.
+#The highest chip sales by percentage were Chips and Guacamole at 44%
+
+chipTypes = {}
+for entry in chipotle.values:
+    if 'Chips' in entry[2]:
+        if entry[2] not in chipTypes.keys():
+            chipTypes[entry[2]] = 1
+        else:
+            chipTypes[entry[2]]  += 1
+chipSum = sum(chipTypes.values()) #total chip order is 1083
+for key in chipTypes.keys():
+    print (key, ' were ', round((int(chipTypes[key])/int(chipSum)),2), ' percentage of chip sales.\n')
